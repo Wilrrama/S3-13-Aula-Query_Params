@@ -1,0 +1,73 @@
+# shell do Django
+from accounts.models import Account
+
+account_1 = {
+  "name": "joana",
+  "email": "joana@gmail.com",
+  "account_balance": 3000,
+  "gender": "feminino"
+}
+
+account_2 = {
+  "name": "maria",
+  "email": "maria@gmail.com",
+  "account_balance": 5000,
+  "gender": "feminino"
+}
+
+account_3 = {
+  "name": "pedro",
+  "email": "pedro@gmail.com",
+  "account_balance": 2600,
+  "gender": "masculino"
+}
+
+Account.objects.create(**account_1)
+# <Account: Account object (1)>
+
+Account.objects.create(**account_2)
+# <Account: Account object (2)>
+Account.objects.create(**account_3)
+# <Account: Account object (3)>
+
+
+
+
+# accounts/views.py
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+from .serializers import AccountSerializer
+
+from .models import Account
+
+
+class AccountFindView(APIView):
+    def get(self, request):
+        account_balance = request.query_params.get("account_balance_gte", None)
+        gender = request.query_params.get("gender", None)
+
+        accounts = Account.objects.filter(
+            account_balance__gte=account_balance, gender=gender
+        )
+
+        serializer = AccountSerializer(accounts, many=True)
+
+        return Response(serializer.data)
+
+
+
+[
+    {
+        "name": "joana",
+        "email": "joana@gmail.com",
+        "account_balance": "3000.00",
+        "gender": "feminino",
+    },
+    {
+        "name": "maria",
+        "email": "maria@gmail.com",
+        "account_balance": "5000.00",
+        "gender": "feminino",
+    },
+]
